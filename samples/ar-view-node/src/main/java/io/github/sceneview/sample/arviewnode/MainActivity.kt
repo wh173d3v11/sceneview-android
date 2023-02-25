@@ -74,8 +74,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             applyPoseRotation = true
         }
 
+        //working
+//        ViewRenderable.builder()
+//            .setView(this, textView)
+//            .build(lifecycle)
+//            .thenAccept { renderable: ViewRenderable ->
+//                viewNode = ViewNode()
+//                viewNode.parent = modelNode
+//                viewNode.setRenderable(renderable)
+//                viewNode.position = Position(x = 0.0f, y = 0.0f, z = 0.0f)
+//                startCounting()
+//            }
 
-        viewNode = ViewNode().apply {
+        viewNode = ViewNode().apply { //working
             parent = arNode
             lifecycle.coroutineScope.launchWhenCreated {
                 val renderable = ViewRenderable.builder()

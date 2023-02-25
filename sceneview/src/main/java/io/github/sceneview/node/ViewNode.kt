@@ -179,7 +179,34 @@ open class ViewNode : Node {
     }
 
     // TODO: Add a method for setting the View from code and support setting the view sizer and alignment
-
+    fun loadView(
+        context: Context,
+        lifecycle: Lifecycle? = null,
+        layoutResId: View,
+        onError: ((error: Exception) -> Unit)? = null,
+        onLoaded: ((instance: RenderableInstance, view: View) -> Unit)? = null
+    ) {
+        if (lifecycle != null) {
+            lifecycle.coroutineScope.launchWhenCreated {
+                try {
+                    val renderable = ViewRenderable.builder()
+                        .setView(context, layoutResId)
+                        .await(lifecycle)
+                    val view = renderable.view
+                    val instance = setRenderable(renderable)
+                    onLoaded?.invoke(instance!!, view)
+                    onViewLoaded(instance!!, view)
+                } catch (error: java.lang.Exception) {
+                    onError?.invoke(error)
+                    onError(error)
+                }
+            }
+        } else {
+            doOnAttachedToScene { scene ->
+                loadView(context, scene.lifecycle, layoutResId, onError, onLoaded)
+            }
+        }
+    }
     open fun setRenderable(renderable: ViewRenderable?): RenderableInstance? {
         renderableInstance = renderable?.createInstance(this)
         return renderableInstance

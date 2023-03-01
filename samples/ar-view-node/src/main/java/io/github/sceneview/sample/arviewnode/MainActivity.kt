@@ -1,6 +1,8 @@
 package io.github.sceneview.sample.arviewnode
 
+import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -22,6 +24,7 @@ import io.github.sceneview.utils.doOnApplyWindowInsets
 import io.github.sceneview.utils.setFullScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -86,17 +89,34 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 //                startCounting()
 //            }
 
+        // Create an instance of the layout inflater
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+        // Inflate the layout you want to add
+        val newView: View = inflater.inflate(R.layout.view_node, null)
         viewNode = ViewNode().apply { //working
             parent = arNode
             lifecycle.coroutineScope.launchWhenCreated {
                 val renderable = ViewRenderable.builder()
-                    .setView(this@MainActivity, textView)
+                    .setView(this@MainActivity, newView)
                     .await(lifecycle)
                 setRenderable(renderable)
-                startCounting()
+                val rotation = newView.findViewById<TextView>(R.id.rotation)
+                startCounting(rotation)
             }
             isEditable = false
         }
+//        viewNode = ViewNode().apply { //working
+//            parent = arNode
+//            lifecycle.coroutineScope.launchWhenCreated {
+//                val renderable = ViewRenderable.builder()
+//                    .setView(this@MainActivity, textView)
+//                    .await(lifecycle)
+//                setRenderable(renderable)
+//                startCounting()
+//            }
+//            isEditable = false
+//        }
 
         isLoading = true
 
@@ -110,11 +130,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private fun startCounting() {
+    private fun startCounting(rotation: TextView = textView) {
         lifecycleScope.launch {
             for (i in 0..1000) {
                 delay(1000)
-                textView.text = "COUNT DOWN --> $i"
+                rotation.text = "COUNT DOWN --> $i"
             }
         }
     }
